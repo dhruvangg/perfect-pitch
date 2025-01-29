@@ -1,7 +1,20 @@
 <template>
     <div class="min-h-screen flex flex-col">
         <Header />
-
+        <div v-if="isLoading" class="absolute top-0 left-0 h-full w-full flex items-center justify-center bg-black/90">
+            <button type="button"
+                class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-2xl shadow rounded-md text-white"
+                disabled="">
+                <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                Loading...
+            </button>
+        </div>
         <main v-if="!feedback" class="flex-grow flex items-center justify-center px-4">
             <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
                 <h2 class="text-xl font-semibold mb-4 text-center">Upload Your Resume</h2>
@@ -57,6 +70,7 @@ const file = ref(null)
 const fileName = ref('No file chosen')
 const fileError = ref('')
 const feedback = ref('')
+const isLoading = ref(false)
 
 const isValidFile = computed(() => {
     return file.value && ['pdf', 'docx'].includes(file.value.name.split('.').pop().toLowerCase())
@@ -91,11 +105,13 @@ async function submitForm() {
     formData.append('resume', file.value)
 
     try {
-        const response = await fetch('http://localhost:3000/review', {
+        isLoading.value = true
+        const response = await fetch('https://perfect-pitch-b596.onrender.com/review', { //  http://localhost:3000/
             method: 'POST',
             body: formData
         })
         const data = await response.json()
+        isLoading.value = false
         feedback.value = data.result
         //   alert('Resume submitted successfully! Response: ' + JSON.stringify(data))
         // Here you can handle the response from the server
