@@ -60,6 +60,7 @@
 </template>
 
 <script setup>
+import { defineComponent } from 'vue';
 import VueMarkdown from "vue3-markdown-it";
 import Header from './Header.vue'
 import Footer from './Footer.vue'
@@ -120,4 +121,7 @@ async function submitForm() {
         alert('An error occurred while submitting the resume.')
     }
 }
+export default defineComponent({
+  name: "ResumeUpload",
+});
 </script>
