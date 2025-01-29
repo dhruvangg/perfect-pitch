@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect Pitch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="flex flex-col min-h-screen bg-gray-100">
+    <header class="bg-blue-600 text-white p-4">
+        <h1 class="text-2xl font-bold text-center">Perfect Pitch</h1>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center px-4">
+        <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+            <h2 class="text-xl font-semibold mb-4 text-center">Upload Your Resume</h2>
+            <form id="resume-form" action="/review" method="POST" enctype="multipart/form-data">
+                <p class="mb-4 text-gray-600 text-center">Please upload your resume in PDF or DOCX format.</p>
+                <div class="flex items-center justify-center mb-4">
+                    <label for="resume-upload"
+                        class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center transition duration-300 ease-in-out">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                        <span>Choose File</span>
+                    </label>
+                    <input id="resume-upload" name="resume" type="file" class="hidden" accept=".pdf,.docx" required />
+                </div>
+                <p class="mt-2 text-sm text-gray-500 text-center" id="file-name">No file chosen</p>
+                <p class="mt-1 text-xs text-red-500 text-center hidden" id="file-error"></p>
+                <div class="mt-6 flex justify-center">
+                    <button type="submit" id="review-button"
+                        class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                        Review Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="bg-gray-200 text-center p-4 mt-8">
+        <p>&copy; 2025 Resume Upload Portal. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const form = document.getElementById('resume-form');
+        const fileInput = document.getElementById('resume-upload');
+        const fileName = document.getElementById('file-name');
+        const fileError = document.getElementById('file-error');
+        const reviewButton = document.getElementById('review-button');
+
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (fileExtension === 'pdf' || fileExtension === 'docx') {
+                    fileName.textContent = file.name;
+                    fileError.textContent = '';
+                    fileError.classList.add('hidden');
+                    reviewButton.disabled = false;
+                } else {
+                    fileName.textContent = 'Invalid file type';
+                    fileError.textContent = 'Please upload a PDF or DOCX file.';
+                    fileError.classList.remove('hidden');
+                    reviewButton.disabled = true;
+                }
+            } else {
+                fileName.textContent = 'No file chosen';
+                fileError.textContent = '';
+                fileError.classList.add('hidden');
+                reviewButton.disabled = true;
+            }
+        });
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (fileInput.files.length === 0) {
+                fileError.textContent = 'Please select a file to upload.';
+                fileError.classList.remove('hidden');
+                return;
+            }
+
+            const formData = new FormData(form);
+
+            fetch('/review', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Resume submitted successfully! Response: ' + JSON.stringify(data));
+                    // Here you can handle the response from the server
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting the resume.');
+                });
+        });
+    </script>
+</body>
+
+</html>
